@@ -3,7 +3,7 @@ setwd("/cloud/project")
 # Load data, standardize the 3 clustering variables, and run fviz_nbclust
 
 # Load packages
-#install.packages(c("factoextra","ggplot2","dplyr","readr")) # uncomment if needed
+install.packages(c("factoextra","ggplot2","dplyr","readr")) # uncomment if needed
 library(factoextra)
 library(ggplot2)
 library(dplyr)
@@ -72,3 +72,33 @@ fviz_cluster(
   ggtheme = theme_minimal()
 ) + 
   ggtitle(paste("K-Means Clusters (k =", k_choice, ")"))
+
+plot
+
+#sergio
+# uniform column names
+age_col   <- names(Mall_Costumers)[grepl("Age", names(Mall_Costumers), ignore.case = TRUE)][1]
+spend_col <- names(Mall_Costumers)[grepl("Spending|Score", names(Mall_Costumers), ignore.case = TRUE)][1]
+
+# Add cluster col to data
+Mall_clustered <- Mall_Costumers %>%
+  mutate(cluster = factor(km.res$cluster))
+
+# boxplot for age code
+ggplot(Mall_clustered, aes(x = cluster, y = .data[[age_col]])) +
+  geom_boxplot() +
+  labs(x = "Cluster", y = "Age") +
+  ggtitle("Age by Cluster")
+
+#Boxplot for annual income code
+ggplot(Mall_clustered, aes(x = cluster, y = .data[[income_col]])) +
+  geom_boxplot() +
+  labs(x = "Cluster", y = "Annual Income") +
+  ggtitle("Annual Income by Cluster")
+
+#Boxplot for spending score
+ggplot(Mall_clustered, aes(x = cluster, y = .data[[spend_col]])) +
+  geom_boxplot() +
+  labs(x = "Cluster", y = "Spending Score") +
+  ggtitle("Spending Score by Cluster")
+
