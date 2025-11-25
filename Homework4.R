@@ -3,14 +3,15 @@ setwd("/cloud/project")
 # Load data, standardize the 3 clustering variables, and run fviz_nbclust
 
 # Load packages
-# install.packages(c("factoextra","ggplot2","dplyr")) # uncomment if needed
+#install.packages(c("factoextra","ggplot2","dplyr","readr")) # uncomment if needed
 library(factoextra)
 library(ggplot2)
 library(dplyr)
+library(readr)
 
 Mall_Costumers <- read_csv("Mall_Customers_extended.csv")
 
-# (3) Identify the continuous variables for clustering: Age, Annual Income, Spending Score
+# Identify the continuous variables for clustering: Age, Annual Income, Spending Score
 # If your columns have exactly those names, the code will use them; otherwise it tries to find close matches.
 cont_default <- c("Age", "Annual Income", "Spending Score")
 cols <- names(Mall_Costumers)
@@ -38,8 +39,36 @@ head(std_subset)
 # Use fviz_nbclust to pick k
 # Elbow method (wss)
 p1 <- fviz_nbclust(std_subset, kmeans, method = "wss") + ggtitle("Elbow method (wss)")
-print(p1)
+
 
 # Silhouette method
 p2 <- fviz_nbclust(std_subset, kmeans, method = "silhouette") + ggtitle("Average silhouette")
-print(p2)
+
+#this section belongs to cass
+
+k_choice <- 3   
+
+set.seed(123)  # ensures same results every time (reproducible)
+km.res <- kmeans(std_subset, centers = k_choice, nstart = 25)
+
+# km.res now contains cluster assignments in km.res$cluster
+#combine (cbind) the standardized data + cluster numbers
+
+
+viz_df <- as.data.frame(std_subset)
+viz_df$cluster <- factor(km.res$cluster)
+
+# Create visualization dataset WITHOUT the cluster column
+viz_df <- as.data.frame(std_subset)
+
+# Plot
+fviz_cluster(
+  km.res,
+  data = viz_df,        # numeric only!
+  palette = rainbow(k_choice),
+  ellipse.type = "euclid",
+  star.plot = TRUE,
+  repel = TRUE,
+  ggtheme = theme_minimal()
+) + 
+  ggtitle(paste("K-Means Clusters (k =", k_choice, ")"))
